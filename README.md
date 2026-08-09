@@ -11,14 +11,14 @@ notifications — all against your own server.
 
 ## Status
 
-Early development. Current milestone: **M1 — foundation & authentication**.
+Early development. Current milestone: **M5 — push notifications & release**.
 
 | Milestone | Scope | Status |
 |---|---|---|
 | M1 | Project scaffold, native auth (login / TOTP / token rotation), onboarding UI | ✅ done |
-| M2 | Offline-first file browser (Room + delta sync + thumbnails + WebSocket) | ⏳ |
-| M3 | File actions, uploads (simple + chunked resumable), downloads, transfer queue | ⏳ |
-| M4 | Camera-roll auto-upload, offline pins | ⏳ |
+| M2 | Offline-first file browser (Room + delta sync + thumbnails + WebSocket) | ✅ done |
+| M3 | File actions, uploads (simple + chunked resumable), downloads, transfer queue | ✅ done |
+| M4 | Camera-roll auto-upload, offline pins, settings | ✅ done |
 | M5 | UnifiedPush notifications, deep links, i18n polish, release build | ⏳ |
 
 ## Architecture
