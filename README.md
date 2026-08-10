@@ -53,7 +53,7 @@ Design principles:
 Requirements: JDK 17+ (Android Studio's JBR works), Android SDK (compileSdk 36).
 
 ```bash
-./gradlew :app:assembleDebug     # debug APK
+./gradlew :app-drive:assembleDebug   # APK debug du client drive
 ./gradlew :core-api:test         # JVM unit tests (auth state machine)
 ```
 

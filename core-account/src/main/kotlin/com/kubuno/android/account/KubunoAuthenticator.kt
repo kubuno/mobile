@@ -7,8 +7,7 @@ import android.accounts.AccountManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import com.kubuno.android.MainActivity
-import com.kubuno.android.R
+import com.kubuno.android.account.R
 import com.kubuno.android.api.auth.AuthException
 import com.kubuno.android.api.auth.FailureKind
 import kotlinx.coroutines.runBlocking
@@ -71,7 +70,7 @@ object KubunoAccounts {
 class KubunoAuthenticator(
     private val context: Context,
     private val registry: AccountRegistry,
-    private val graphs: AccountGraphFactory,
+    private val clients: AccountClients,
 ) : AbstractAccountAuthenticator(context) {
 
     /**
@@ -115,10 +114,10 @@ class KubunoAuthenticator(
         // The system account outlived the Kubuno registration (app data
         // cleared, account forgotten): sign in again rather than guess.
         if (registry.get(id) == null) return reLoginBundle(response, id)
-        val graph = graphs.graphOf(id) ?: return reLoginBundle(response, id)
+        val client = clients.of(id) ?: return reLoginBundle(response, id)
 
         return try {
-            val token = runBlocking { graph.client.tokenManager.validAccessToken() }
+            val token = runBlocking { client.tokenManager.validAccessToken() }
                 ?: return reLoginBundle(response, id)
             Bundle().apply {
                 putString(AccountManager.KEY_ACCOUNT_NAME, account.name)
@@ -143,7 +142,7 @@ class KubunoAuthenticator(
 
     override fun getAuthTokenLabel(authTokenType: String?): String? =
         if (authTokenType == KubunoAccounts.AUTH_TOKEN_ACCESS) {
-            context.getString(R.string.app_name)
+            context.getString(R.string.kubuno_account_label)
         } else {
             null
         }
@@ -186,8 +185,15 @@ class KubunoAuthenticator(
             ?.takeIf { it.isNotEmpty() }
             ?.let(::AccountId)
 
+    /**
+     * Launches the sign-in UI of whichever app the framework bound this
+     * authenticator into — its own launcher activity, not a hardcoded class,
+     * so the shared module stays app-agnostic. The activity reads the
+     * authenticator response from the extras and reports the outcome on it.
+     */
     private fun signInIntent(response: AccountAuthenticatorResponse?): Intent =
-        Intent(context, MainActivity::class.java)
+        (context.packageManager.getLaunchIntentForPackage(context.packageName)
+            ?: Intent(Intent.ACTION_MAIN))
             .putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response)
 
     /** Tells the caller "I cannot do this silently, show this to the user". */

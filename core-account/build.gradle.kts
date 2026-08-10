@@ -1,13 +1,16 @@
-// Android library: Room store, delta sync engine, workers, realtime client.
+// Android library shared by every Kubuno app: the accounts on the device, the
+// encrypted sessions, and the authenticator that lends access tokens to the
+// sibling apps. Everything account-shaped lives here exactly once.
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.hilt)
 }
 
 android {
-    namespace = "com.kubuno.android.sync"
+    namespace = "com.kubuno.android.account"
     compileSdk = 36
 
     defaultConfig {
@@ -28,20 +31,10 @@ kotlin {
 
 dependencies {
     api(project(":core-api"))
-    api(project(":core-account"))
 
     implementation(libs.coroutines.android)
     implementation(libs.kotlinx.serialization.json)
 
-    api(libs.room.runtime)
-    implementation(libs.room.ktx)
-    ksp(libs.room.compiler)
-
-    api(libs.work.runtime.ktx)
-    implementation(libs.lifecycle.process)
-
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
-    implementation(libs.androidx.hilt.work)
-    ksp(libs.androidx.hilt.compiler)
 }

@@ -3,7 +3,9 @@ name: build
 on:
   push:
     branches: [main]
-    tags: ["v*"]
+    # One repository, one app per Kubuno module: the tag prefix says which app
+    # is being released (drive-v1.2.0, mail-v0.1.0).
+    tags: ["*-v*"]
   pull_request:
 
 jobs:
@@ -22,19 +24,19 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
 
       - name: Unit tests
-        run: ./gradlew :core-api:test
+        run: ./gradlew test
 
-      - name: Assemble debug APK
-        run: ./gradlew :app:assembleDebug
+      - name: Assemble every app
+        run: ./gradlew assembleDebug
 
-      - name: Upload debug APK
+      - name: Upload debug APKs
         uses: actions/upload-artifact@v4
         with:
           name: kubuno-android-debug
-          path: app/build/outputs/apk/debug/*.apk
+          path: app-*/build/outputs/apk/debug/*.apk
 
   release:
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: contains(github.ref, '-v')
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -51,11 +53,16 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
+      # drive-v0.2.0 -> app-drive
+      - name: Resolve the app from the tag
+        id: app
+        run: echo "module=app-${GITHUB_REF_NAME%%-v*}" >> "$GITHUB_OUTPUT"
+
       - name: Assemble release APK (unsigned)
-        run: ./gradlew :app:assembleRelease
+        run: ./gradlew :${{ steps.app.outputs.module }}:assembleRelease
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          files: app/build/outputs/apk/release/*.apk
+          files: ${{ steps.app.outputs.module }}/build/outputs/apk/release/*.apk
           generate_release_notes: true

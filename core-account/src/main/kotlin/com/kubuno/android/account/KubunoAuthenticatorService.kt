@@ -14,7 +14,7 @@ import javax.inject.Inject
  * single `TokenManager` instance.
  *
  * `@AndroidEntryPoint` gives the service field injection from the singleton
- * component, so the authenticator sees the very same registry and graphs as
+ * component, so the authenticator sees the very same registry and clients as
  * the UI: no second copy of the token state.
  */
 @AndroidEntryPoint
@@ -22,11 +22,11 @@ class KubunoAuthenticatorService : Service() {
 
     @Inject lateinit var registry: AccountRegistry
 
-    @Inject lateinit var graphs: AccountGraphFactory
+    @Inject lateinit var clients: AccountClients
 
     // Built lazily: injection happens in onCreate, always before onBind.
     private val authenticator: KubunoAuthenticator by lazy {
-        KubunoAuthenticator(this, registry, graphs)
+        KubunoAuthenticator(this, registry, clients)
     }
 
     override fun onBind(intent: Intent?): IBinder = authenticator.iBinder

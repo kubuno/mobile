@@ -18,7 +18,7 @@ import okhttp3.Request
 @Singleton
 class AccountCallFactory @Inject constructor(
     private val registry: AccountRegistry,
-    private val graphs: AccountGraphFactory,
+    private val clients: AccountClients,
 ) : Call.Factory {
 
     /** For URLs belonging to no known account: no credentials attached. */
@@ -31,7 +31,7 @@ class AccountCallFactory @Inject constructor(
             // only by path (`https://host/` and `https://host/kubuno`).
             .filter { url.startsWith(it.serverUrl) }
             .maxByOrNull { it.serverUrl.length }
-        val client = owner?.let { graphs.graphOf(it.id) }?.client?.okHttpClient ?: anonymous
+        val client = owner?.let { clients.of(it.id) }?.okHttpClient ?: anonymous
         return client.newCall(request)
     }
 }
