@@ -12,3 +12,8 @@ build/
 !debug.keystore
 hs_err_pid*.log
 replay_pid*.log
+
+# Claude Code working files (agent instructions & memory) — never published
+CLAUDE.md
+AGENTS.md
+.claude/
