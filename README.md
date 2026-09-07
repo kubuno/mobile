@@ -13,6 +13,56 @@ short-lived access tokens without ever holding your refresh token.
 |---|---|---|
 | **Kubuno Drive** | `:app-drive` | `com.kubuno.drive.android` |
 | **Kubuno Mail** | `:app-mail` | `com.kubuno.mail.android` |
+| **Kubuno Maps** | `:app-maps` | `com.kubuno.maps.android` |
+| **Kubuno Messages** | `:app-chat` | `com.kubuno.chat.android` |
+
+---
+
+## Kubuno Messages
+
+A native client for the Kubuno chat module: conversations, groups and channels, with the
+anatomy people already know from mainstream messengers and the Kubuno design system's own
+skin.
+
+- **Live by default** — one WebSocket to the chat module (`/api/v1/chat/ws`) carries every
+  event about your account, so the list and the open conversation update together without
+  polling and without per-conversation subscriptions.
+- **Idempotent sending** — each message carries a client nonce that the module treats as an
+  idempotency key, so a send interrupted mid-flight is retried without ever duplicating.
+- **Notifications** — over [UnifiedPush](https://unifiedpush.org/), like every other Kubuno
+  app. The payload is content-free by design: it names the sender or the group, never the
+  message.
+
+> **On encryption.** The chat module advertises Signal-style end-to-end encryption, but it
+> does not implement it yet: message bodies travel as base64-encoded JSON, and the prekeys
+> the module publishes are never consumed. This app therefore makes **no** encryption claim
+> in its interface, and deliberately neither publishes nor fetches keys — registering a
+> second key set would overwrite the one the web client uses. When the module ships a real
+> protocol, the envelope encode/decode pair (`ChatEnvelope`) is the only place that changes.
+
+### Milestones
+
+| Milestone | Scope | Status |
+|---|---|---|
+| M1 | Conversation list (filters, archive, pin, unread), conversation reader, live socket, optimistic send | ✅ done |
+| M2 | Reply, edit, delete, forward, reactions, receipts, typing, local search | planned |
+| M3 | Media: gallery, camera, documents, voice messages | planned |
+| M4 | Groups, mentions, polls, pinning, ephemeral messages, UnifiedPush | planned |
+| M5 | Offline Bluetooth relay between nearby devices; calls | planned |
+
+---
+
+## Kubuno Maps
+
+A native maps client built on [MapLibre](https://maplibre.org/) — a libre renderer, not a
+proprietary maps SDK.
+
+- **Search and places** — geocoding and nearby points of interest through the maps module.
+- **Directions** — walking, cycling, driving and transit routes, with a turn-by-turn
+  navigation view.
+- **GPX** — import, browse and follow recorded tracks, with an elevation profile.
+- **Layers** — plan, satellite and a relief view built from terrain tiles shaded beneath
+  the labels, so the map stays readable.
 
 ---
 
@@ -71,8 +121,10 @@ Gradle modules:
 - **`:core-ui`** — shared Compose design tokens and shell components.
 - **`:core-sync`** — Room, delta sync engine, offline outbox, WorkManager workers, chunked
   uploader (drive).
-- **`:app-drive`**, **`:app-mail`** — the Compose (Material 3) apps, Hilt-wired, each with
-  its own UnifiedPush receiver and notifications.
+- **`:core-viewer`** — the shared in-app viewers (image, PDF, text, audio/video), used by
+  both drive and mail.
+- **`:app-drive`**, **`:app-mail`**, **`:app-maps`**, **`:app-chat`** — the Compose
+  (Material 3) apps, Hilt-wired, each with its own UnifiedPush receiver and notifications.
 
 De-googled by design: push uses UnifiedPush, tokens are stored encrypted with an Android
 Keystore AES-GCM key, and user-installed CAs are trusted so self-hosted instances with a
@@ -87,6 +139,8 @@ Requirements: JDK 17+ (Android Studio's JBR works), Android SDK (compileSdk 36).
 ```bash
 ./gradlew :app-mail:assembleDebug     # debug APK — Kubuno Mail
 ./gradlew :app-drive:assembleDebug    # debug APK — Kubuno Drive
+./gradlew :app-maps:assembleDebug     # debug APK — Kubuno Maps
+./gradlew :app-chat:assembleDebug     # debug APK — Kubuno Messages
 ./gradlew :app-mail:assembleRelease   # minified (R8) release APK, unsigned
 ./gradlew :core-api:test              # JVM unit tests (auth state machine)
 ```
