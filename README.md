@@ -45,10 +45,25 @@ skin.
 | Milestone | Scope | Status |
 |---|---|---|
 | M1 | Conversation list (filters, archive, pin, unread), conversation reader, live socket, optimistic send | ✅ done |
-| M2 | Reply, edit, delete, forward, reactions, receipts, typing, local search | planned |
-| M3 | Media: gallery, camera, documents, voice messages | planned |
-| M4 | Groups, mentions, polls, pinning, ephemeral messages, UnifiedPush | planned |
-| M5 | Offline Bluetooth relay between nearby devices; calls | planned |
+| M2 | Reply, edit, delete, forward, reactions, receipts, typing, in-chat search | ✅ done |
+| M3 | Media: gallery, camera, documents, voice messages | ✅ done |
+| M4 | New conversations and groups, mentions, polls, pinning, ephemeral messages, UnifiedPush | ✅ done |
+| M5a | Audio and video calls (WebRTC, mesh, interoperable with the web client) | ✅ done |
+| M5b | Offline Bluetooth relay between nearby devices | not started — see below |
+
+**Calls** need the instance to publish ICE servers (`GET /chat/config`), and a
+TURN relay for anything behind a real NAT. This client uses what the instance
+configures and nothing else: with an empty list a call still connects between
+directly reachable peers and fails visibly otherwise. It never falls back to a
+third party's public STUN, which would hand the participants' addresses to a
+stranger the instance did not choose.
+
+**The Bluetooth relay is not started, deliberately.** Carrying messages through
+a stranger's phone is only defensible once the module encrypts them, and today
+it does not (see the encryption note above). The transport design is settled —
+BLE dual-role advertising and GATT, controlled flooding with a TTL, a
+store-and-forward queue — but it waits on a real protocol rather than shipping a
+relay for plaintext.
 
 ---
 
