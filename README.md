@@ -58,6 +58,19 @@ directly reachable peers and fails visibly otherwise. It never falls back to a
 third party's public STUN, which would hand the participants' addresses to a
 stranger the instance did not choose.
 
+> **A current browser cannot yet call an Android client.** Chrome 152 negotiates
+> DTLS 1.3, and no published build of the Android WebRTC library completes that
+> handshake with it: M125, M137 and M144 fail with `UNSUPPORTED_PROTOCOL`, and
+> M150 — the only one that speaks DTLS 1.3 — gets through HelloRetryRequest and
+> then fails inside BoringSSL with `WRONG_CURVE`. With DTLS 1.3 disabled in the
+> browser the same call connects immediately, so everything above the handshake
+> is proven: ICE pairs, the signalling is single-copy and correctly ordered, and
+> the phone takes the answerer role. This is not specific to Kubuno — mobile
+> WebRTC libraries trail Chrome — but until it clears upstream, calls between
+> the web client and a phone should not be advertised as working. The library is
+> pinned to M150 for that reason, and must be kept close to current: the peer at
+> the other end of a call is a browser that updates itself.
+
 **The Bluetooth relay is not started, deliberately.** Carrying messages through
 a stranger's phone is only defensible once the module encrypts them, and today
 it does not (see the encryption note above). The transport design is settled —
