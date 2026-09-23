@@ -8,6 +8,11 @@ on:
     tags: ["*-v*"]
   pull_request:
 
+# The Android project lives in android/ (iOS will sit beside it in ios/).
+defaults:
+  run:
+    working-directory: android
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -33,7 +38,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: kubuno-android-debug
-          path: app-*/build/outputs/apk/debug/*.apk
+          path: android/app-*/build/outputs/apk/debug/*.apk
 
   release:
     if: contains(github.ref, '-v')
@@ -64,5 +69,5 @@ jobs:
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          files: ${{ steps.app.outputs.module }}/build/outputs/apk/release/*.apk
+          files: android/${{ steps.app.outputs.module }}/build/outputs/apk/release/*.apk
           generate_release_notes: true
